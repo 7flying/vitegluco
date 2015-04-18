@@ -1,7 +1,10 @@
+# Custom dirs & stuff
+temp/
 # Emacs stuff 
 *~
 \#*\#
 .\#*
+
 # Client stuff
 client/
 static_working/
@@ -71,3 +74,4 @@ docs/_build/
 
 # PyBuilder
 target/
+/bin/

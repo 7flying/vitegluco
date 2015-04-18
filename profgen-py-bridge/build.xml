@@ -1,0 +1,47 @@
+<project name="prog-gen-py-bridge" default="jars" basedir=".">
+	<property environment="env" />
+	<property name="bin.dir" location="bin" />
+	<property name="src.dir" location="src" />
+	<property name="lib.dir" location="lib" />
+	<property name="jar.dir" location="jar" />
+	<property name="javaversion" value="1.7" />
+	<property name="version" value="1" />
+	<property name="revision" value=".0" />
+	<property name="main.jar" value="profgen-pybridge-${version}${revision}"/>
+	<property name="main-class" value="com.sevenflying.profgen.Launch"/>
+	
+	<path id="libraries">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="${bin.dir}" />
+		<delete file="${bin.dir}/${main.jar}.jar" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${jar.dir}" />
+	</target>
+
+	<target name="compile" depends="prepare" description="Compiles sources">
+		<javac destdir="${bin.dir}" srcdir="${src.dir}"
+			deprecation="true" fork="true" source="${javaversion}"
+			target="${javaversion}">
+		<classpath refid="libraries" />
+		</javac>
+	</target>
+
+	<target name="jars" depends="compile">
+		<!-- basedir must be .class folder-->
+		<jar destfile="${jar.dir}/${main.jar}.jar" basedir="${bin.dir}"> 
+			<fileset dir="${bin.dir}/" includes="*.class" />
+			<zipgroupfileset dir="${lib.dir}" includes="*.jar"/>
+			<manifest> 
+				<attribute name="Main-Class" value="${main-class}" />
+			</manifest>
+		</jar>
+	</target>
+</project>
