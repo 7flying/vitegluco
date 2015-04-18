@@ -2,7 +2,7 @@ package com.sevenflying.profgen;
 
 import java.util.Map;
 
-/** Interface that a python object must implement to comunicate with
+/** Interface that a python object must implement to communicate with
  * the profile generator.
  * @author flying
  */

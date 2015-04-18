@@ -9,7 +9,7 @@ class Bot(Resource):
     def __init__(self):
         super(Bot, self).__init__()
 
-class Bots(ResourcE):
+class Bots(Resource):
 
     def __init__(self):
         super(Bots, self).__init__()
