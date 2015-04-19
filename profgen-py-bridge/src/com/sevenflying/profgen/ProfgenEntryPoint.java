@@ -7,15 +7,11 @@ import py4j.GatewayServer;
  * @author flying
  */
 public class ProfgenEntryPoint {
-
-	private Profgen profgen;
 	
-	public ProfgenEntryPoint() {
-		this.profgen = new Profgen();
-	}
+	public ProfgenEntryPoint() {}
 	
 	public Profgen getProfgen() {
-		return profgen;
+		return new Profgen();
 	}
 
 	public static void main(String[] args) {

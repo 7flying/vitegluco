@@ -1,8 +1,10 @@
 from flask import jsonify
 from flask.ext.restful import Resource, reqparse
 import uuid
+import threading
 
 from app import manager
+import generator
 import api_common
 
 class Twitter(Resource):
@@ -39,7 +41,6 @@ class Twitter(Resource):
         """Handles a POST to profgen/twitter, makes a request to create a
         Twitter account.
         """
-        # TODO call generator's methods
         args = self.reqparse.parse_args()
         # Generate uuid
         uid = uuid.uuid4()
@@ -51,6 +52,13 @@ class Twitter(Resource):
           if not args['mailauto']:
               # Generate a simple twitter account
               manager.store_uuid(uid)
+              gen_thread = threading.Thread(target=generator.generate_twitter,
+                                            args=(uid, args['name'],
+                                                  args['lastname'],
+                                                  args['username'],
+                                                  args['email'],
+                                                  args['follow']))
+              gen_thread.start()
               return jsonify(uuid=uid, code=200)
           else:
               if args['sex'] is not None and args['sex'].upper() in ('M', 'F')\
@@ -59,6 +67,13 @@ class Twitter(Resource):
                 args['bday'] > 0 and args['bmonth'] > 0 and args['byear'] > 1900:
                   # Generate an email account on the fly
                   manager.store_uuid(uid)
+                  gen_thread = threading.Thread(
+                      target=generator.generate_twitter_email,
+                      args=(uid, args['name'], args['lastname'],
+                           args['username'], args['email'],
+                           args['mailtype'].upper(), args['sex'], args['bday'],
+                           args['bmonth'], args['byear'], args['follow']))
+                  gen_thread.start()
                   return jsonify(uuid=uid, code=200)
               else:
                   return jsonify(error="Incorrect params", code=400)

@@ -45,7 +45,6 @@ public class Profgen {
 			results.put("message", "Generation failed");
 			results.put("uuid", uuid);
 		}
-		base.logout();
 		base.closeBrowser();
 		results.put("type", "TWITTER");
 		dataSender.sendResults(results);
@@ -115,7 +114,6 @@ public class Profgen {
 			dataSender.sendResults(results);
 		}
 		if (base != null) {
-			base.logout();
 			base.closeBrowser();
 		}
 		if (ex == null) {
