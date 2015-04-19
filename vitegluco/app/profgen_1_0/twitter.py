@@ -7,6 +7,7 @@ from app import manager
 import generator
 import api_common
 
+
 class Twitter(Resource):
 
     def __init__(self):

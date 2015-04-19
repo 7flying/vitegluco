@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from py4j.java_gateway import JavaGateway
+from api_common import Gateway
 from java_receiver import CaptchaSolver, DataReceiver
 
-gateway = JavaGateway(start_callback_server=True, auto_convert=True)
 
 def generate_twitter(uuid, name, lastname, username, email, to_follow=None):
     """Generates a twitter account.
@@ -15,6 +14,7 @@ def generate_twitter(uuid, name, lastname, username, email, to_follow=None):
     :param to_follow: list of accounts to follow.
     """
     data = DataReceiver()
+    gateway = Gateway.generate_gateway()
     profgen = gateway.entry_point.getProfgen()
     if profgen is not None:
         profgen.generateTwitter(data, str(uuid), name, lastname, username,
@@ -40,6 +40,7 @@ def generate_twitter_email(uuid, name, lastname, username, email, email_type,\
     """
     data = DataReceiver()
     captcha = CaptchaSolver()
+    gateway = Gateway.generate_gateway()
     profgen = gateway.entry_point.getProfgen()
     if profgen is not None:
         profgen.generateTwitterEmail(captcha, data, str(uuid), name, lastname,
