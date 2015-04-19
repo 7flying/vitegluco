@@ -1,5 +1,6 @@
 package com.sevenflying.profgen;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +35,13 @@ public class Profgen {
 			}
 		}
 		BaseGenerator base = GeneratorFactory.createGenerator(
-				Generator.TWITTER, params);
+				Generator.TWITTER, params, null);
 		Map<String, String> results = null;
 		try {
 			results = base.generateProfile();
 			results.put("uuid", uuid);
 		} catch(Exception e) {
+			results = new HashMap<String, String>();
 			results.put("message", "Generation failed");
 			results.put("uuid", uuid);
 		}
@@ -56,8 +58,8 @@ public class Profgen {
 			String byear, List<String> toFollow)
 	{
 		ProfileGenerator temp = emailType.equals("GMAIL")
-		? new ProfileGenerator(Generator.TWITTER, MailGenerator.MAILCOM)
-		: new ProfileGenerator(Generator.TWITTER, MailGenerator.GMAIL);
+		? new ProfileGenerator(Generator.TWITTER, MailGenerator.GMAIL)
+		: new ProfileGenerator(Generator.TWITTER, MailGenerator.MAILCOM);
 		Map<String, String> params = temp.getRequiredParams();
 		params.put(TwitterGenerator.fullNameParam, name + " " + lastname);
 		params.put(TwitterGenerator.emailParam, null);
@@ -79,37 +81,46 @@ public class Profgen {
 			extraParams.put(GmailGenerator.emailUsernameParam, email);
 		else
 			extraParams.put(MailComGenerator.account, email);
+		temp.quit();
 		// Generation
 		Exception ex = null;
-		String generatedEmailAccount = null;
 		BaseGenerator base = null;
 		try {
 			// Generate mapper
 			MailMapeable mailMapper = MailMapperFactory.createMailMapper(
-				MailGenerator.GMAIL, Generator.TWITTER, true);
+				emailType.equals("GMAIL") ? MailGenerator.GMAIL
+						: MailGenerator.MAILCOM,
+						Generator.TWITTER, false);
 			Map<String, String> generatedParams = mailMapper.mapMailParams(
-				MailGenerator.GMAIL, params, extraParams);
+					emailType.equals("GMAIL") ? MailGenerator.GMAIL
+						: MailGenerator.MAILCOM, params, extraParams);
 			// Generate mail
 			base = GeneratorFactory.createEmailGenerator(
-				MailGenerator.GMAIL, generatedParams);
+					emailType.equals("GMAIL") ? MailGenerator.GMAIL
+							: MailGenerator.MAILCOM,
+					generatedParams, new GetCaptchaExtender(capatchaSolver));
 			Map<String, String> mailData = base.generateProfile();
-			base.logout();
+			System.out.println("mail com generated");
+			base.closeBrowser();
 			mailData.put("uuid", uuid);
 			mailData.put("type", emailType);
 			dataSender.sendResults(mailData);
 			email = mailData.get(BaseGenerator.UNAME);
 		} catch(Exception e) {
 			ex = e;
+			Map<String, String> results = new HashMap<String, String>();
+			results.put("message", "Generation failed");
+			results.put("uuid", uuid);
+			results.put("type", emailType);
+			dataSender.sendResults(results);
 		}
 		if (base != null) {
 			base.logout();
 			base.closeBrowser();
 		}
-		
 		if (ex == null) {
-			params.put(TwitterGenerator.emailParam, email);
 			generateTwitter(dataSender, uuid, name, lastname, username,
-					generatedEmailAccount, toFollow);
+					email, toFollow);
 		}
 	}
 }
