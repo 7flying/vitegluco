@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask impor jsonify
+from flask import jsonify
 from flask.ext.restful import Resource, reqparse
 
 from app import manager
