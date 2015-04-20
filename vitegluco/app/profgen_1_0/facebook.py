@@ -1,8 +1,10 @@
 from flask import jsonify
 from flask.ext.restful import Resource, reqparse
 import uuid
+import threading
 
 from app import manager
+import generator
 import api_common
 
 class Facebook(Resource):
@@ -37,7 +39,6 @@ class Facebook(Resource):
         """Handles a POST to profgen/facebook, makes a request to create a
         Facebook account.
         """
-        # TODO call the generator's methods
         args = self.reqparse.parse_args()
         uid = uuid.uuid4()
         if args['name'] is not None and len(args['name']) > 0 and \
@@ -48,10 +49,28 @@ class Facebook(Resource):
           if not args['mailauto']:
               # Generate a simple Facebook account
               manager.store_uuid(uid)
+              gen_thread = threading.Tread(target=generator.generate_facebook,
+                                           args=(uid, args['name'],
+                                                 args['lastname'],
+                                                 args['email'], args['sex'],
+                                                 args['bday'], args['bmonth'],
+                                                 args['byear'],
+                                                 args['friends']))
+              gen_thread.start()
               return jsonify(uuid=uid, code=200)
           else:
               if args['mailtype'].upper() in api_common.EMAIL_SERVICES:
                   manager.store_uuid(uid)
+                  gen_thread = threading.Tread(target=generator.generate_facebook,
+                                               args=(uid, args['name'],
+                                                     args['lastname'],
+                                                     args['email'],
+                                                     args['mailtype'],
+                                                     args['sex'], args['bday'],
+                                                     args['bmonth'],
+                                                     args['byear'],
+                                                     args['friends']))
+                  gen_thread.start()
                   return jsonify(uuid=uid, code=200)
               else:
                   return jsonify(error="Incorrect params", code=400)
